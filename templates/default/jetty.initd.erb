@@ -1,0 +1,226 @@
+#!/bin/sh -e
+#
+# /etc/init.d/jetty -- startup script for jetty 4.2.11
+#
+# Written by Philipp Meier <meier@meisterbohne.de>
+#
+### BEGIN INIT INFO
+# Provides:          jetty
+# Required-Start:    $syslog $network
+# Required-Stop:     $syslog $network
+# Should-Start:      $local_fs
+# Should-Stop:       $local_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start Jetty
+# Description:       Start Jetty HTTP server and servlet container.
+### END INIT INFO
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+NAME=jetty
+DESC="Jetty servlet engine"
+JETTY_HOME=<%= node.jetty.home %>
+START_JAR="$JETTY_HOME/start.jar"
+
+# The following variables can be overwritten in /etc/default/jetty
+
+# Whether to start jetty (as a daemon) or not
+NO_START=0
+
+# Run Jetty as this user ID (default: jetty)
+# Set this to an empty string to prevent Jetty from starting automatically
+JETTY_USER=<%= node.jetty.user %>
+                                                                                
+# The first existing directory is used for JAVA_HOME (if JAVA_HOME is not
+# defined in /etc/default/jetty)
+JDK_DIRS="
+	  /usr/lib/jvm/java-6-openjdk \
+	  /usr/lib/jvm/java-6-sun \
+	  /usr/lib/jvm/java-1.5.0-sun \
+	  /usr/lib/jvm/java-gcj \
+	  /usr/lib/j2sdk1.6-sun \
+	  /usr/lib/j2sdk1.5-sun \
+	  /usr/lib/j2sdk1.4-sun \
+	  /usr/lib/j2sdk1.4 \
+	  /usr/lib/j2se/1.4 \
+	  /usr/lib/j2sdk1.3 \
+	  /usr/lib/j2se/1.3 \
+	  /usr/lib/kaffe/ \
+	 "
+
+# Timeout in seconds for the shutdown of all webapps
+JETTY_SHUTDOWN=30
+
+# Jetty uses a directory to store temporary files like unpacked webapps
+JETTY_TMP=<%= node.jetty.cache %>
+
+# End of variables that can be overwritten in /etc/default/jetty
+                                                                                
+# overwrite settings from default file
+if [ -f /etc/default/jetty ]; then
+        . /etc/default/jetty
+fi
+
+# Check whether jetty is still installed (it might not be if this package was
+# removed and not purged)
+if [ -r "$START_JAR" ]; then
+    HAVE_JETTY=1
+else
+    exit 0
+fi
+
+# Check whether startup has been disabled
+if [ "$NO_START" != "0" -a "$1" != "stop" ]; then 
+        [ "$VERBOSE" != "no" ] && echo "Not starting jetty - edit /etc/default/jetty and change NO_START to be 0 (or comment it out).";
+        exit 0;
+fi
+
+if [ -z "$JETTY_USER" ]; then
+        echo "Not starting/stopping $DESC as configured (JETTY_USER is"
+        echo "empty in /etc/default/jetty)."
+        exit 0
+fi
+
+# Look for the right JVM to use
+for jdir in $JDK_DIRS; do
+        if [ -d "$jdir" -a -z "${JAVA_HOME}" ]; then
+                JAVA_HOME="$jdir"
+        fi
+done
+export JAVA_HOME
+
+export JAVA="$JAVA_HOME/bin/java"
+
+# Set java.awt.headless=true if JAVA_OPTIONS is not set so the
+# Xalan XSL transformer can work without X11 display on JDK 1.4+
+if [ -z "$JAVA_OPTIONS" ]; then
+        JAVA_OPTIONS="-Xmx256m \
+	              -Djava.awt.headless=true \
+	              -Djava.io.tmpdir=\"$JETTY_TMP\" \
+		      -Djava.library.path=/usr/lib"
+fi
+export JAVA_OPTIONS
+                                                                                
+# Define other required variables
+PIDFILE="/var/run/$NAME.pid"
+LOGDIR="/var/log/jetty"
+
+##################################################
+# Check for JAVA_HOME
+##################################################
+if [ -z "$JAVA_HOME" ]; then
+    echo "Could not start $DESC because no Java Development Kit"
+    echo "(JDK) was found. Please download and install JDK 1.3 or higher and set"
+    echo "JAVA_HOME in /etc/default/jetty to the JDK's installation directory."
+    exit 0
+
+fi
+
+ARGUMENTS="$JAVA_OPTIONS -jar $START_JAR -Djetty.home=$JETTY_HOME OPTIONS=default,jndi,annotations,jsp --pre=/etc/jetty/jetty-logging.xml /etc/jetty/jetty.xml /etc/jetty/jetty-deploy.xml"
+
+##################################################
+# Do the action
+##################################################
+case "$1" in
+  start)
+	if start-stop-daemon --quiet --test --start --pidfile "$PIDFILE" \
+	                --user "$JETTY_USER" --startas "$JAVA" > /dev/null; then 
+
+
+
+	    # Look for rotatelogs/rotatelogs2
+	    if [ -x /usr/sbin/rotatelogs ]; then
+		ROTATELOGS=/usr/sbin/rotatelogs
+	    else
+		ROTATELOGS=/usr/sbin/rotatelogs2
+	    fi
+
+	    if [ -f $PIDFILE ]
+		then
+			echo "$PIDFILE exists, but jetty was not running. Ignoring $PIDFILE"
+	    fi
+
+	    echo -n "Starting $DESC: "
+	    	if [ \! -e "$LOGDIR/out.log" ]; then
+			touch "$LOGDIR/out.log"
+			chown jetty.adm "$LOGDIR/out.log"
+		fi
+		su -p -s /bin/sh "$JETTY_USER" \
+			-c "$ROTATELOGS \"$LOGDIR/out.log\" 86400" \
+			< "$LOGDIR/out.log" &
+		su -p -s /bin/sh "$JETTY_USER" \
+			-c "$JAVA $ARGUMENTS >> $LOGDIR/out.log 2>&1 & \
+			    echo \$!"  > "$PIDFILE"
+                echo "$NAME."
+	else
+        echo "(already running)."
+		exit 1
+    fi
+        ;;
+
+  stop)
+  	echo -n "Stopping $DESC: "
+
+	if start-stop-daemon --quiet --test --start --pidfile "$PIDFILE" \
+		--user "$JETTY_USER" --startas "$JAVA" > /dev/null; then
+		if [ -x "$PIDFILE" ]; then
+			echo "(not running but $PIDFILE exists)."
+		else
+			echo "(not running)."
+		fi
+	else
+		start-stop-daemon --quiet --stop \
+			--pidfile "$PIDFILE" --user "$JETTY_USER" \
+			--startas "$JAVA" > /dev/null
+                while ! start-stop-daemon --quiet --test --start \
+			--pidfile "$PIDFILE" --user "$JETTY_USER" \
+			--startas "$JAVA" > /dev/null; do 
+                        sleep 1
+                        echo -n "."
+                        JETTY_SHUTDOWN=`expr $JETTY_SHUTDOWN - 1` || true
+                        if [ $JETTY_SHUTDOWN -ge 0 ]; then
+				start-stop-daemon --oknodo --quiet --stop \
+					--pidfile "$PIDFILE" --user "$JETTY_USER" \
+					--startas "$JAVA"
+			else
+                                echo -n " (killing) "
+                                start-stop-daemon --stop --signal 9 --oknodo \
+                                        --quiet --pidfile "$PIDFILE" \
+                                        --user "$JETTY_USER"
+                        fi
+                done
+        	rm -f "$PIDFILE"
+                echo "$NAME."
+	fi
+        ;;
+
+  restart|force-reload)
+        $0 stop $*
+        sleep 1
+        $0 start $*
+        ;;
+
+  check)
+        echo "Checking arguments to Jetty: "
+        echo
+	echo "PIDFILE        =  $PIDFILE"
+	echo "JAVA_OPTIONS   =  $JAVA_OPTIONS"
+	echo "JAVA           =  $JAVA"
+	echo "JETTY_USER     =  $JETTY_USER"
+	echo "ARGUMENTS      =  $ARGUMENTS"
+        
+        if [ -f $PIDFILE ]
+        then
+            echo "Jetty running pid="`cat $PIDFILE`
+            exit 0
+        fi
+        exit 1
+        ;;
+
+  *)
+        echo "Usage: /etc/init.d/jetty {start|stop|restart|force-reload|check}" >&2
+	exit 1
+	;;
+esac
+
+exit 0

@@ -1,0 +1,32 @@
+{
+    "version": "0.1.0",
+    "conflicting": {
+    },
+    "recipes": {
+    },
+    "attributes": {
+    },
+    "providing": {
+    },
+    "dependencies": {
+      "java": [
+
+      ]
+    },
+    "maintainer": "Jiva Technology Limited",
+    "replacing": {
+    },
+    "maintainer_email": "theo@jivatechnology.com",
+    "groupings": {
+    },
+    "license": "Apache 2.0",
+    "long_description": "= DESCRIPTION:\n\n= REQUIREMENTS:\n\n= ATTRIBUTES: \n\n= USAGE:\n\n",
+    "recommendations": {
+    },
+    "name": "jetty",
+    "suggestions": {
+    },
+    "platforms": {
+    },
+    "description": "Installs/Configures jetty"
+  }
