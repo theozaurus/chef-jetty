@@ -2,3 +2,8 @@
 #JETTY_TMP=/var/cache/jetty
 #JAVA_OPTIONS="-Xmx256m -Djava.awt.headless=true \
 #              -Djava.io.tmpdir=$JETTY_TMP -Djava.library.path=/usr/lib"
+JETTY_HOME=<%= node.jetty.home %>
+JETTY_USER=<%= node.jetty.user %>
+JETTY_ARGS="OPTIONS=default,jndi,annotations,jsp"
+TMPDIR=<%= node.jetty.cache %>
+CONFIGS=("--pre=/etc/jetty/jetty-logging.xml" "/etc/jetty.xml" "/etc/jetty/jetty-deploy.xml")

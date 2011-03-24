@@ -41,10 +41,12 @@ directory "/etc/jetty" do
   mode '755'
 end
 
-%w(contexts webapps).each do |d|
-  directory "#{node.jetty.home}/#{d}" do
-    recursive true
-    mode      '755'
+
+[node.jetty.home, "#{node.jetty.home}/contexts", "#{node.jetty.home}/webapps"].each do |d|
+  directory d do
+    owner node.jetty.user
+    group node.jetty.group
+    mode  '755'
   end
 end
 
