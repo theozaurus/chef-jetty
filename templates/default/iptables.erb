@@ -1,0 +1,2 @@
+# Redirect traffic from source to destination
+-A PREROUTING -p tcp --dport <%= @source %>  -j REDIRECT --to-port <%= @destination %>

@@ -92,6 +92,19 @@ template '/etc/default/jetty' do
   notifies :restart, resources(:service => 'jetty')
 end
 
+if node.jetty.port < 1024
+  include_recipe 'iptables'
+
+  node.set[:jetty][:real_port] = node.jetty.hidden_port
+  
+  iptables_rule 'jetty_redirect' do
+    source 'iptables.erb'
+    variables :source => node.jetty.port, :destination => node.jetty.hidden_port
+  end
+else
+  node.set[:jetty][:real_port] = node.jetty.port
+end
+
 %w(jetty.xml webdefault.xml jetty-deploy.xml jetty-logging.xml).each do |f|
   template "/etc/jetty/#{f}" do
     source "#{f}.erb"

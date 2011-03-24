@@ -10,6 +10,8 @@ default[:jetty][:extracted] = "#{jetty.directory}/jetty-distribution-#{jetty.ver
 default[:jetty][:user]      = "jetty"
 default[:jetty][:group]     = "adm"
 default[:jetty][:home]      = "/usr/share/jetty"
-default[:jetty][:port]      = "8983"
+default[:jetty][:port]      = 8983
+default[:jetty][:hidden_port] = 8983 if jetty.port.to_i < 1024
+
 default[:jetty][:log_dir]   = "/var/log/jetty"
 default[:jetty][:cache]     = "/var/cache/jetty"
