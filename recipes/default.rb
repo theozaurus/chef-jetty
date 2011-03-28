@@ -97,9 +97,12 @@ if node.jetty.port < 1024
 
   node.set[:jetty][:real_port] = node.jetty.hidden_port
   
-  iptables_rule 'jetty_redirect' do
+  template "/etc/iptables.snat" do
     source 'iptables.erb'
-    variables :source => node.jetty.port, :destination => node.jetty.hidden_port
+    mode 0644
+    backup false
+    variables :source => node.jetty.port , :destination => node.jetty.hidden_port
+    notifies :run, resources(:execute => "rebuild-iptables")
   end
 else
   node.set[:jetty][:real_port] = node.jetty.port
