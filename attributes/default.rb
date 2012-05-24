@@ -1,10 +1,10 @@
 expand!
 
-default[:jetty][:version]   = "7.1.6.v20100715"
-default[:jetty][:link]      = "http://download.eclipse.org/jetty/#{jetty.version}/dist/jetty-distribution-#{jetty.version}.tar.bz2"
-default[:jetty][:checksum]  = "06436e51560cc67b6f571dc98db38ceee12fb7ac8aa70bc8e8c7e9761ef38387"
+default[:jetty][:version]   = "7.6.3.v20120416"
+default[:jetty][:link]      = "http://download.eclipse.org/jetty/stable-7/dist/jetty-distribution-#{jetty.version}.tar.gz"
+default[:jetty][:checksum]  = "66a2a7c5b20af89c9fdbe7d2599f072553d0f5ca32b6060d84899eb5c9eda6e3" # SHA256
 default[:jetty][:directory] = "/usr/local/src"
-default[:jetty][:download]  = "#{jetty.directory}/jetty-distribution-#{jetty.version}.tar.bz2"
+default[:jetty][:download]  = "#{jetty.directory}/jetty-distribution-#{jetty.version}.tar.gz"
 default[:jetty][:extracted] = "#{jetty.directory}/jetty-distribution-#{jetty.version}"
 
 default[:jetty][:user]      = "jetty"

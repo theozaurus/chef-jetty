@@ -7,9 +7,9 @@
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -61,7 +61,7 @@ remote_file node.jetty.download do
 end
 
 bash 'Unpack Jetty' do
-  code   "tar xjf #{node.jetty.download} -C #{node.jetty.directory}"
+  code   "tar xzf #{node.jetty.download} -C #{node.jetty.directory}"
   not_if "test -d #{node.jetty.extracted}"
 end
 
@@ -96,7 +96,7 @@ if node.jetty.port < 1024
   include_recipe 'iptables'
 
   node.set[:jetty][:real_port] = node.jetty.hidden_port
-  
+
   template "/etc/iptables.snat" do
     source 'iptables.erb'
     mode 0644
@@ -114,7 +114,7 @@ end
     mode   '644'
     notifies :restart, resources(:service => 'jetty')
   end
-end 
+end
 
 service 'jetty' do
   action [:enable, :start]
