@@ -1,8 +1,8 @@
 expand!
 
-default[:jetty][:version]   = "7.6.3.v20120416"
-default[:jetty][:link]      = "http://download.eclipse.org/jetty/stable-7/dist/jetty-distribution-#{jetty.version}.tar.gz"
-default[:jetty][:checksum]  = "66a2a7c5b20af89c9fdbe7d2599f072553d0f5ca32b6060d84899eb5c9eda6e3" # SHA256
+default[:jetty][:version]   = "7.6.5.v20120716"
+default[:jetty][:link]      = "http://download.eclipse.org/jetty/#{jetty.version}/dist/jetty-distribution-#{jetty.version}.tar.gz"
+default[:jetty][:checksum]  = "ae09ecc5e6f7f329a7bb3ae5f939b7ab45c90627b04afb0c22069c53f1868044" # SHA256
 default[:jetty][:directory] = "/usr/local/src"
 default[:jetty][:download]  = "#{jetty.directory}/jetty-distribution-#{jetty.version}.tar.gz"
 default[:jetty][:extracted] = "#{jetty.directory}/jetty-distribution-#{jetty.version}"
