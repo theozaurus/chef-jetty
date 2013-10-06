@@ -1,8 +1,8 @@
-expand!
+expand! unless Chef::Config[:solo]
 
-default[:jetty][:version]   = "7.6.5.v20120716"
+default[:jetty][:version]   = "9.0.6.v20130930"
 default[:jetty][:link]      = "http://download.eclipse.org/jetty/#{jetty.version}/dist/jetty-distribution-#{jetty.version}.tar.gz"
-default[:jetty][:checksum]  = "ae09ecc5e6f7f329a7bb3ae5f939b7ab45c90627b04afb0c22069c53f1868044" # SHA256
+default[:jetty][:checksum]  = "c35c6c0931299688973e936186a6237b69aee2a7912dfcc2494bde9baeeab58f" # SHA256
 default[:jetty][:directory] = "/usr/local/src"
 default[:jetty][:download]  = "#{jetty.directory}/jetty-distribution-#{jetty.version}.tar.gz"
 default[:jetty][:extracted] = "#{jetty.directory}/jetty-distribution-#{jetty.version}"
