@@ -367,6 +367,7 @@ then
 
   # Java search path
   JAVA_LOCATIONS=(
+      "/usr/lib/jvm/java-6-openjdk-amd64"
       "/usr/lib/jvm/java-6-openjdk"
       "/usr/lib/jvm/java-6-sun"
       "/usr/lib/jvm/java-1.5.0-sun"
@@ -400,15 +401,15 @@ then
       done
     done | sort)
 
-  # JAVA_HOME=${JAVA%/*}
-  # while [ "$JAVA_HOME" ] && [ ! -f "$JAVA_HOME/lib/tools.jar" ] ; do
-  #   JAVA_HOME=${JAVA_HOME%/*}
-  # done
-  # if [ -z "$JAVA_HOME" ]
-  # then
-  #   echo "** ERROR: Java installation at '$JAVA' doesn't appear to be valid or complete." 
-  #   exit 1
-  # fi
+  JAVA_HOME=${JAVA%/*}
+  while [ "$JAVA_HOME" ] && [ ! -f "$JAVA_HOME/lib/tools.jar" ] ; do
+    JAVA_HOME=${JAVA_HOME%/*}
+  done
+  if [ -z "$JAVA_HOME" ]
+  then
+    echo "** ERROR: Java installation at '$JAVA' doesn't appear to be valid or complete."
+    exit 1
+  fi
 
   (( DEBUG )) && echo "Found java '$JAVA' at '$JAVA_HOME'"
 fi
