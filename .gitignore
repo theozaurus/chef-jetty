@@ -1,1 +1,23 @@
 metadata.json
+
+*~
+*#
+.#*
+\#*#
+.*.sw[a-z]
+*.un~
+/cookbooks
+
+# Bundler
+Gemfile.lock
+bin/*
+.bundle/*
+
+Berksfile.lock
+
+.kitchen/
+.vagrant/
+.vagrant.d/
+
+Thorfile
+Vagrantfile
